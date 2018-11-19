@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dataset Manager</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/colors.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+
+    <script type="text/javascript">
+        function showHidePendant(target, height) {
+            const element = document.getElementById(target);
+
+            if (element.classList.contains('visible')) {
+                element.classList.remove('visible');
+                element.style.maxHeight = null;
+            } else {
+                element.classList.add('visible');
+                element.style.maxHeight = height;
+            }
+        }
+
+        function goto(target) {
+            window.location.href = target;
+        }
+    </script>
+</head>
+<body>
+    <div id="menu" class="background-primary color-complement">
+        <ul>
+            <li>
+                <a href="/" class="material-icons">ballot</a>
+            </li>
+            <li>
+                <a href="/types/" class="material-icons">build</a>
+            </li>
+            <li>
+                <a href="/exports/" class="material-icons">cloud_upload</a>
+            </li>
+        </ul>
+    </div>
+
+    {% block content %}
+    {% endblock %}
+</body>
+</html>

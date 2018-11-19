@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="column">
+        <h1 class="color-complement background-primary">
+            <div class="main-part">
+                Collections
+            </div>
+            {% if collection %}
+            <a href="#" onclick="showHidePendant('duplicateCollection', '54px')">
+                <i class="material-icons">file_copy</i>
+            </a>
+            {% endif %}
+            <a href="#" onclick="showHidePendant('addNewCollection', '148px')">
+                <i class="material-icons">add_circle_outline</i>
+            </a>
+        </h1>
+
+        {% if collection %}
+        <div class="pendant background-secondary color-complement" id="duplicateCollection">
+            <form method="post" action="/collections/duplicate/{{ collection.uuid }}/">
+                {% csrf_token %}
+                <label class="selectable">
+                    <span>Name</span>
+                    <input name="name" autocomplete="off" required />
+                </label>
+                <input type="submit" class="material-icons" value="check_circle"/>
+            </form>
+        </div>
+        {% endif %}
+
+        <div class="pendant background-secondary color-complement vertical" id="addNewCollection">
+            <form method="post" action="/collections/add/">
+                {% csrf_token %}
+                <label class="selectable">
+                    <span>Name</span>
+                    <input name="name" autocomplete="off" required />
+                </label>
+
+                <label class="selectable">
+                    <span>Type</span>
+                    <select name="type" required>
+                        {% for option in types %}
+                        <option value="{{ option.uuid }}">{{ option.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <div class="submitWrapper">
+                    <input type="submit" class="material-icons" value="check_circle"/>
+                </div>
+            </form>
+        </div>
+
+        <div class="column-content">
+            <ul class="items">
+                {% for t in collections %}
+                <li class="background-hint color-primary{% if t == collection %} selected{% endif %}" onclick="goto('/collections/edit/{{ t.uuid }}/')">
+                    <a>{{ t.name }}</a>
+                    <span class="info color-hint">{{ t.type.name }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    {% block collection_content %}
+    {% endblock %}
+{% endblock %}

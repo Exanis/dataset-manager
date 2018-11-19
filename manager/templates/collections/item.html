@@ -1,0 +1,121 @@
+{% extends 'collections/collection.html' %}
+{% load item_values %}
+
+{% block itemvalues %}
+    <div class="column">
+        <h1 class="color-complement background-primary">
+            <div class="main-part">
+                Item values
+            </div>
+            <a href="#" onclick="showHidePendant('deleteItem', '54px')">
+                <i class="material-icons">delete_forever</i>
+            </a>
+        </h1>
+
+        <div class="pendant background-secondary color-complement" id="deleteItem">
+            <div>
+                <div class="central">
+                    Really delete this item?
+                </div>
+                <a href="/collections/items/{{ item.uuid }}/delete/" class="material-icons">check_circle</a>
+            </div>
+        </div>
+
+        <div class="column-content">
+            {% for field in fields %}
+                <div class="container">
+                    <h1 class="background-complement color-primary{% if item|is_field_valid:field.field == False %} error{% endif %}">
+                        <div class="main-part">
+                            {{ field.name }}
+                        </div>
+                        {% if item|values_for:field.field|length < field.field.max_count %}
+                            <a href="#" onclick="showHidePendant('{{ field.field.uuid }}-random', '54px')">
+                                <i class="material-icons">pets</i>
+                            </a>
+                            <a href="#" onclick="showHidePendant('{{ field.field.uuid }}', '200px')">
+                                <i class="material-icons">add_circle_outline</i>
+                            </a>
+                        {% endif %}
+                    </h1>
+
+                    <div class="pendant background-secondary color-complement" id="{{ field.field.uuid }}-random">
+                        <form method="post" action="/collections/items/{{ item.uuid }}/field/{{ field.field.uuid }}/generate/">
+                            {% csrf_token %}
+                            <label class="selectable">
+                                <span>Generate how many?</span>
+                                <input name="count" type="number" min="1" max="{{ item|remaining:field.field }}" step="1" required value="{{ item|remaining:field.field }}" />
+                            </label>
+                            <input type="submit" class="material-icons" value="check_circle" />
+                        </form>
+                    </div>
+
+                    <div class="pendant background-secondary color-complement vertical" id="{{ field.field.uuid }}">
+                        <form method="post" action="/collections/items/{{ item.uuid }}/value/add/">
+                            {% csrf_token %}
+                            <input type="hidden" name="type" value="{{ field.field.uuid }}"/>
+                            {% if field.field.data_type.data_type == 'int' %}
+                                <label class="selectable">
+                                    <span>Value</span>
+                                    <input autocomplete="off" name="value" type="number"
+                                           min="{{ field.field.data_type.min }}" max="{{ field.field.data_type.max }}"
+                                           step="1" required />
+                                </label>
+                            {% endif %}
+                            {% if field.field.data_type.data_type == 'float' %}
+                                <label class="selectable">
+                                    <span>Value</span>
+                                    <input autocomplete="off" name="value" type="number"
+                                           min="{{ field.field.data_type.min }}" max="{{ field.field.data_type.max }}"
+                                           step="0.01" required />
+                                </label>
+                            {% endif %}
+                            {% if field.field.data_type.data_type == 'bool' %}
+                                <label class="selectable">
+                                    <span>Value</span>
+                                    <select name="value">
+                                        <option value="true">True</option>
+                                        <option value="false">False</option>
+                                    </select>
+                                </label>
+                            {% endif %}
+                            {% if field.field.data_type.data_type == 'lorem' %}
+                                <label class="selectable">
+                                    <span>Value</span>
+                                    <textarea name="value" rows="7"></textarea>
+                                </label>
+                            {% endif %}
+                            {% if field.field.data_type.data_type == 'str' or field.field.data_type.data_type == 'uuid' or field.field.data_type.data_type == 'person' %}
+                                <label class="selectable">
+                                    <span>Value</span>
+                                    <input autocomplete="off" name="value" />
+                                </label>
+                            {% endif %}
+                            {% if field.field.data_type.data_type == 'options' %}
+                                <label class="selectable">
+                                    <span>Value</span>
+                                    <select name="value">
+                                        {% for val in field.field.data_type.options %}
+                                            <option value="{{ val.name }}">{{ val.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </label>
+                            {% endif %}
+                            <div class="submitWrapper">
+                                <input type="submit" class="material-icons" value="check_circle"/>
+                            </div>
+                        </form>
+                    </div>
+
+                    <ul class="items">
+                        {% for val in item|values_for:field.field %}
+                            <li class="background-hint color-primary with-button">
+                                <span>{{ val.value|linebreaksbr }}</span>
+                                <a onclick="goto('/collections/items/value/{{ val.uuid }}/delete/')" class="material-icons">delete_forever</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

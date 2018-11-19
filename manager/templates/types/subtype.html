@@ -1,0 +1,64 @@
+{% extends 'types/edit.html' %}
+
+{% block subtype_content %}
+    <div class="column">
+        <h1 class="color-complement background-primary">
+            <div class="main-part">
+                {{ element.name }}
+            </div>
+            <a href="#" onclick="showHidePendant('deleteSubType')">
+                <i class="material-icons">delete_forever</i>
+            </a>
+        </h1>
+
+        <div class="pendant background-secondary color-complement" id="deleteSubType">
+            <div>
+                <div class="central">
+                    Really delete this field?
+                </div>
+                <a href="/types/subtype/delete/{{ element.uuid }}/" class="material-icons">check_circle</a>
+            </div>
+        </div>
+
+        <div class="column-content">
+            <form method="post" action="/types/subtype/edit/{{ element.uuid }}/save/"
+                  class="background-hint explain-type">
+                {% csrf_token %}
+                <label class="selectable">
+                    <span>Name</span>
+                    <input name="name" value="{{ element.name }}" autocomplete="off" required/>
+                </label>
+                <label class="selectable">
+                    <span>Type</span>
+                    <select name="type">
+                        {% for t in types %}
+                            {% if t != element.base_type %}
+                                <option value="{{ t.uuid }}"
+                                        {% if element.data_type == t %}selected{% endif %}>{{ t.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </label>
+                {% if element.data_type.data_type != 'struct' %}
+                    <label>
+                        <span>View in list</span>
+                        <input type="checkbox" name="recap" {% if element.recap %}checked{% endif %}/>
+                    </label>
+                    <label class="selectable">
+                        <span>Minimum count</span>
+                        <input type="number" step="1" min="0" value="{{ element.min_count }}" name="min"
+                               autocomplete="off" required/>
+                    </label>
+                    <label class="selectable">
+                        <span>Maximum count</span>
+                        <input type="number" step="1" min="1" value="{{ element.max_count }}" name="max"
+                               autocomplete="off" required/>
+                    </label>
+                {% endif %}
+                <div class="submitWrapper">
+                    <input type="submit" class="material-icons" value="check_circle"/>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

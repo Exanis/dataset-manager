@@ -1,0 +1,183 @@
+{% extends 'exports/index.html' %}
+
+{% block export_content %}
+    <div class="column">
+        <h1 class="color-complement background-primary">
+            <div class="main-part">
+                {{ export.name }}
+            </div>
+            <a href="#" onclick="showHidePendant('editExport', '379px')">
+                <i class="material-icons">edit</i>
+            </a>
+            <a href="#" onclick="showHidePendant('deleteExport', '54px')">
+                <i class="material-icons">delete_forever</i>
+            </a>
+        </h1>
+
+        <div class="pendant background-secondary color-complement" id="deleteExport">
+            <div>
+                <div class="central">
+                    Really delete this export?
+                </div>
+                <a href="/exports/delete/{{ export.uuid }}/" class="material-icons">check_circle</a>
+            </div>
+        </div>
+
+        <div class="pendant background-secondary color-complement vertical" id="editExport">
+            <form method="post" action="/exports/edit/{{ export.uuid }}/save/">
+                {% csrf_token %}
+                <label class="selectable">
+                    <span>Name</span>
+                    <input name="name" value="{{ export.name }}" autocomplete="off" required/>
+                </label>
+                <label class="selectable">
+                    <span>Type</span>
+                    <select name="type">
+                        <option {% if export.type == 'json' %}selected{% endif %} value="json">Json</option>
+                        <option {% if export.type == 'api' %}selected{% endif %} value="api">API</option>
+                    <!--    <option {% if export.type == 'db' %}selected{% endif %} value="db">Database</option> -->
+                    </select>
+                </label>
+                <label>
+                    <span>Flatten collection on export</span>
+                    <input type="checkbox"{% if export.flatten %} checked{% endif %} name="flatten"/>
+                </label>
+                {% if export.type == 'api' %}
+                    <label class="selectable">
+                        <span>Username</span>
+                        <input name="username" autocomplete="off" value="{{ export.username }}"/>
+                    </label>
+                    <label class="selectable">
+                        <span>Password</span>
+                        <input name="password" autocomplete="off" value="{{ export.password }}"/>
+                    </label>
+                    <label class="selectable">
+                        <span>URL</span>
+                        <input name="url" autocomplete="off" type="url" value="{{ export.url }}" required/>
+                    </label>
+                    <label class="selected">
+                        <span>Method</span>
+                        <select name="method">
+                            <option value="GET"{% if export.method == 'GET' %} selected{% endif %}>GET</option>
+                            <option value="POST"{% if export.method == 'POST' %} selected{% endif %}>POST</option>
+                            <option value="PATCH"{% if export.method == 'PATCH' %} selected{% endif %}>PATCH</option>
+                            <option value="PUT"{% if export.method == 'PUT' %} selected{% endif %}>PUT</option>
+                            <option value="DELETE"{% if export.method == 'DELETE' %} selected{% endif %}>DELETE</option>
+                        </select>
+                    </label>
+                {% endif %}
+                {% if export.type == 'db' %}
+                    <label class="selectable">
+                        <span>URL</span>
+                        <input name="url" autocomplete="off" value="{{ export.url }}" required/>
+                    </label>
+                {% endif %}
+                <div class="submitWrapper">
+                    <input type="submit" class="material-icons" value="check_circle"/>
+                </div>
+            </form>
+        </div>
+
+        <div class="column-content">
+            <div class="background-hint explain-type">
+                {% if export.type == 'json' %}
+                    A <span class="color-hint">Json</span> export will let you download a json version of your
+                    collection. It will be organized as a list of objects.
+                    {% if export.flatten %}
+                        <br/><br/>
+                        The collection will be flattened before exporting, meaning that there will be no imbricated
+                        objects:
+                        if your collection's type have field of a free type, their values will be added to the main
+                        object
+                        instead of put in a sub-object.
+                    {% endif %}
+                {% endif %}
+
+                {% if export.type == 'api' %}
+                    An <span class="color-hint">API</span> export will send a
+                    <span class="color-hint">{{ export.method }}</span>
+                    method to the url <span class="color-hint">{{ export.url }}</span>. This request will be sent with
+                    a
+                    Content-Type application/json (unless specified otherwise in the headers below), will include every
+                    header
+                    defined below as header and will have the collection as it's body content. The collection will be
+                    organized
+                    as a list of objects.
+                    {% if export.username != '' %}
+                        <br/><br/>
+                        The API Request will include a Basic-Auth with username
+                        <span class="color-hint">{{ export.username }}</span>
+                        and password <span class="color-hint">{{ export.password }}</span>
+                    {% endif %}
+                    {% if export.flatten %}
+                        <br/><br/>
+                        The collection will be flattened before exporting, meaning that there will be no imbricated
+                        objects:
+                        if your collection's type have field of a free type, their values will be added to the main
+                        object
+                        instead of put in a sub-object.
+                    {% endif %}
+                {% endif %}
+
+                {% if export.type == 'db' %}
+                    A <span class="color-hint">Database</span> export will save the collection into a database. The
+                    <a href="https://github.com/kennethreitz/dj-database-url">database URL</a> provided is
+                    <span class="color-hint">{{ export.url }}</span>. Data of the collection will be stored in
+                    a table matching the name of the collection (this table must already exists).
+                    <br/><br/>
+                    The collection will be stored in the database one item per line.
+                    {% if export.flatten %}
+                        The collection will be flattened before exporting; if your collection's type have field of a
+                        free type,
+                        their values will be added to the main object and considered as a column of the main table.
+                    {% else %}
+                        The collection will not be flattened before exporting. If your collection's type have field of a
+                        free type,
+                        they will be ignored.
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            {% if export.type == 'api' %}
+                <div class="container">
+                    <h1 class="color-complement background-primary">
+                        <div class="main-part">
+                            Headers
+                        </div>
+                        <a href="#" onclick="showHidePendant('addNewHeader', '148px')">
+                            <i class="material-icons right">add_circle_outline</i>
+                        </a>
+                    </h1>
+
+                    <div class="pendant background-secondary color-complement vertical" id="addNewHeader">
+                        <form method="post" action="/exports/{{ export.uuid }}/param/add/">
+                            {% csrf_token %}
+                            <label class="selectable">
+                                <span>Header</span>
+                                <input name="name" autocomplete="off" required/>
+                            </label>
+                            <label class="selectable">
+                                <span>Value</span>
+                                <input name="value" autocomplete="off"/>
+                            </label>
+                            <div class="submitWrapper">
+                                <input type="submit" class="material-icons" value="check_circle"/>
+                            </div>
+                        </form>
+                    </div>
+
+                    <ul class="items">
+                        {% for option in export.params %}
+                            <li class="background-hint color-primary with-button">
+                                <span class="vertical">
+                                    <span>{{ option.value }}</span>
+                                    <span class="info color-hint">{{ option.name }}</span>
+                                </span>
+                                <a onclick="goto('/exports/param/{{ val.uuid }}/delete/')" class="material-icons">delete_forever</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+{% endblock %}

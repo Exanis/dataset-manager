@@ -1,0 +1,228 @@
+{% extends 'types/index.html' %}
+
+{% block type_content %}
+    <div class="column">
+        <h1 class="color-complement background-primary">
+            <div class="main-part">
+                {{ type.name }}
+            </div>
+            <a href="#" onclick="showHidePendant('editType', '341px')">
+                <i class="material-icons">edit</i>
+            </a>
+            <a href="#" onclick="showHidePendant('deleteType', '54px')">
+                <i class="material-icons">delete_forever</i>
+            </a>
+        </h1>
+
+        <div class="pendant background-secondary color-complement" id="deleteType">
+            <div>
+                <div class="central">
+                    Really delete this type?
+                </div>
+                <a href="/types/delete/{{ type.uuid }}/" class="material-icons">check_circle</a>
+            </div>
+        </div>
+
+        <div class="pendant background-secondary color-complement vertical" id="editType">
+            <form method="post" action="/types/edit/{{ type.uuid }}/save/">
+                {% csrf_token %}
+                <label class="selectable">
+                    <span>Name</span>
+                    <input name="name" value="{{ type.name }}" autocomplete="off" required />
+                </label>
+                <label class="selectable">
+                    <span>Base</span>
+                    <select name="data_type">
+                        <option {% if type.data_type == 'int' %}selected{% endif %} value="int">Integer</option>
+                        <option {% if type.data_type == 'float' %}selected{% endif %} value="float">Float</option>
+                        <option {% if type.data_type == 'bool' %}selected{% endif %} value="bool">Boolean</option>
+                        <option {% if type.data_type == 'lorem' %}selected{% endif %} value="lorem">Lorem Ipsum</option>
+                        <option {% if type.data_type == 'str' %}selected{% endif %} value="str">String</option>
+                        <option {% if type.data_type == 'options' %}selected{% endif %} value="options">Options</option>
+                        <option {% if type.data_type == 'uuid' %}selected{% endif %} value="uuid">UUID</option>
+                        <option {% if type.data_type == 'person' %}selected{% endif %} value="person">Person</option>
+                        <option {% if type.data_type == 'struct' %}selected{% endif %} value="struct">Collection</option>
+                    </select>
+                </label>
+                {% if type.data_type != 'struct' %}
+                    {% if type.data_type != 'bool' and type.data_type != 'uuid' and type.data_type != 'person' %}
+                        {% if type.data_type == 'int' or type.data_type == 'float' %}
+                            <label class="selectable">
+                                <span>Min</span> <input name="min" value="{{ type.min }}" autocomplete="off" required />
+                            </label>
+                            <label class="selectable">
+                                <span>Max</span> <input name="max" value="{{ type.max }}" autocomplete="off" required />
+                            </label>
+                        {% endif %}
+                        {% if type.data_type == 'lorem' or type.data_type == 'str' %}
+                            <label class="selectable">
+                                <span>Min length</span> <input name="min" value="{{ type.min }}" autocomplete="off" required />
+                            </label>
+                            <label class="selectable">
+                                <span>Max length</span> <input name="max" value="{{ type.max }}" autocomplete="off" required />
+                            </label>
+                        {% endif %}
+                    {% endif %}
+                    <label>
+                        <span>Set by user on generation</span> <input name="fixed" type="checkbox"
+                                                                      {% if type.fixed %}checked{% endif %}/>
+                    </label>
+                {% endif %}
+                <div class="submitWrapper">
+                    <input type="submit" class="material-icons" value="check_circle"/>
+                </div>
+            </form>
+        </div>
+
+        <div class="column-content">
+            <div class="background-hint explain-type">
+                {% if type.data_type == 'int' %}
+                    An <span class="color-hint">Integer</span> field will have a numeric, non-decimal value. When
+                    generating it, the generator will use numbers between <span class="color-hint">{{ type.min }}</span>
+                    and <span class="color-hint">{{ type.max }}</span>.
+                {% endif %}
+
+                {% if type.data_type == 'float' %}
+                    A <span class="color-hint">Float</span> field will have a numeric, possibly decimal value. When
+                    generating it, the generator will use numbers between <span class="color-hint">{{ type.min }}</span>
+                    and <span class="color-hint">{{ type.max }}</span>.
+                {% endif %}
+
+                {% if type.data_type == 'bool' %}
+                    A <span class="color-hint">Boolean</span> field will have a boolean value - either
+                    <span class="color-hint">true</span>
+                    or <span class="color-hint">false</span>. The generator will use this two possibilities to create a
+                    collection.
+                {% endif %}
+
+                {% if type.data_type == 'str' %}
+                    A <span class="color-hint">String</span> field is basically a text field randomly generated by shooting
+                    letters
+                    without sense in it. The generator will generate between <span class="color-hint">{{ type.min }}</span>
+                    and <span class="color-hint">{{ type.max }}</span>
+                    letters.
+                {% endif %}
+
+                {% if type.data_type == 'lorem' %}
+                    A <span class="color-hint">Lorem Ipsum</span> field is basically a text field using pseudo-latin
+                    sentences
+                    to generate the text contained in it. This text will look like actually text, even if it means nothing.
+                    The generator will create text of <span class="color-hint">{{ type.min }}</span> to
+                    <span class="color-hint">{{ type.max }}</span> word when generating.
+                {% endif %}
+
+                {% if type.data_type == 'options' %}
+                    An <span class="color-hint">Options</span> field is a limited choices kind of field. It is composed of a
+                    finite number of alternatives (one per line in edit mode) and the generator will automatically choose
+                    one of those possibilities when generating.
+                {% endif %}
+
+                {% if type.data_type == 'uuid' %}
+                    An <span class="color-hint">UUID</span> field will contain a (hopefully valid) uuid. An uuid can be considered
+                    as an unique identifier.
+                {% endif %}
+
+                {% if type.data_type == 'person' %}
+                    A <span class="color-hint">Person</span> field will contain fake contact data for someone. The exact nature
+                    of the contact data depends on the number of values in the field: the first one will be a full name, then an
+                    email address, then a phone number, then a mail address, then if will loop.
+                {% endif %}
+
+                {% if type.data_type == 'struct' %}
+                    A <span class="color-hint">Collection</span> type is a very specific kind of type. Instead of being
+                    a basic type, it is a sum of multiple fields from other types. A collection field cannot be set <i>per se</i>;
+                    instead, you will be able to set the values of it's own subfields. <span class="color-hint">Note: </span>
+                    collections can only be made of <span class="color-hint">Collections types</span>.
+                {% else %}
+                    {% if type.fixed %}
+                        <br/><br/>
+                        When generating a collection with object including this type, you will be able to set the value of
+                        this item before generating.
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            {% if type.data_type == 'options' %}
+                <div class="container">
+                    <h1 class="color-complement background-primary">
+                        <div class="main-part">
+                            Options
+                        </div>
+                        <a href="#" onclick="showHidePendant('addNewOption', '54px')">
+                            <i class="material-icons right">add_circle_outline</i>
+                        </a>
+                    </h1>
+
+                    <div class="pendant background-secondary color-complement" id="addNewOption">
+                        <form method="post" action="/types/option/{{ type.uuid }}/add/">
+                            {% csrf_token %}
+                            <label class="selectable">
+                                <span>Value</span>
+                                <input name="value" autocomplete="off" required />
+                            </label>
+                            <input type="submit" class="material-icons" value="check_circle"/>
+                        </form>
+                    </div>
+
+                    <ul class="items">
+                        {% for option in type.options %}
+                            <li class="background-hint color-primary with-button">
+                                <span>{{ option.name }}</span>
+                                <a onclick="goto('/types/option/{{ option.uuid }}/delete/')" class="material-icons">delete_forever</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            {% if type.data_type == 'struct' %}
+                <div class="container">
+                <h1 class="color-complement background-primary">
+                    <div class="main-part">
+                        Fields
+                    </div>
+                    <a href="#" onclick="showHidePendant('addNewField', '148px')">
+                        <i class="material-icons right">add_circle_outline</i>
+                    </a>
+                </h1>
+
+                <div class="pendant background-secondary color-complement vertical" id="addNewField">
+                    <form method="post" action="/types/subtype/add/">
+                        {% csrf_token %}
+                        <input type="hidden" name="parent" value="{{ type.uuid }}"/>
+                        <label class="selectable">
+                            <span>Name</span>
+                            <input name="name" autocomplete="off" required />
+                        </label>
+                        <label class="selectable">
+                            <span>Type</span>
+                            <select name="type">
+                                {% for t in types %}
+                                    {% if t != type %}
+                                        <option value="{{ t.uuid }}">{{ t.name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <div class="submitWrapper">
+                            <input type="submit" class="material-icons" value="check_circle"/>
+                        </div>
+                    </form>
+                </div>
+
+                <ul class="items">
+                    {% for f in type.fields %}
+                        <li class="background-hint color-primary{% if f == element %} selected{% endif %}"
+                            onclick="goto('/types/subtype/edit/{{ f.uuid }}/')">
+                            <a>{{ f.name }}</a>
+                            <span class="info color-hint">{{ f.data_type }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            </div>
+        </div>
+    </div>
+    {% block subtype_content %}
+    {% endblock %}
+{% endblock %}

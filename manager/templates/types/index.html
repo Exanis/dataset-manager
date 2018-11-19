@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="column">
+        <h1 class="color-complement background-primary">
+            <div class="main-part">
+                Data types
+            </div>
+            {% if type %}
+            <a href="#" onclick="showHidePendant('duplicateType', '54px')">
+                <i class="material-icons">file_copy</i>
+            </a>
+            {% endif %}
+            <a href="#" onclick="showHidePendant('addNewType', '54px')">
+                <i class="material-icons">add_circle_outline</i>
+            </a>
+        </h1>
+
+        {% if type %}
+        <div class="pendant background-secondary color-complement" id="duplicateType">
+            <form method="post" action="/types/duplicate/{{ type.uuid }}/">
+                {% csrf_token %}
+                <label class="selectable">
+                    <span>Name</span>
+                    <input name="name" autocomplete="off" required />
+                </label>
+                <input type="submit" class="material-icons" value="check_circle" />
+            </form>
+        </div>
+        {% endif %}
+
+        <div class="pendant background-secondary color-complement" id="addNewType">
+            <form method="post" action="/types/add/">
+                {% csrf_token %}
+                <label class="selectable">
+                    <span>Name</span>
+                    <input name="name" autocomplete="off" required />
+                </label>
+                <input type="submit" class="material-icons" value="check_circle" />
+            </form>
+        </div>
+
+        <div class="column-content">
+            <ul class="items">
+                {% for t in types %}
+                <li class="{% if t.data_type == 'struct' %}background-hint{% else %}background-complement{% endif %} color-primary{% if t == type %} selected{% endif %}" onclick="goto('/types/edit/{{ t.uuid }}/')">
+                    <a>{{ t.name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    {% block type_content %}
+    {% endblock %}
+{% endblock %}

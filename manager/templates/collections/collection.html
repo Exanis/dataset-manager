@@ -1,0 +1,93 @@
+{% extends 'collections/index.html' %}
+{% load item_values %}
+
+{% block collection_content %}
+    <div class="column">
+        <h1 class="color-complement background-primary">
+            <div class="main-part">
+                {{ collection.name }}
+            </div>
+            <a href="/collections/{{ collection.uuid }}/generate/fix/">
+                <i class="material-icons">refresh</i>
+            </a>
+            <a href="/collections/{{ collection.uuid }}/generate/">
+                <i class="material-icons">pets</i>
+            </a>
+            <a href="#" onclick="showHidePendant('exportCollection', '54x')">
+                <i class="material-icons">cloud_upload</i>
+            </a>
+            <a href="/collections/{{ collection.uuid }}/items/add/">
+                <i class="material-icons">add_circle_outline</i>
+            </a>
+            <a href="#" onclick="showHidePendant('editCollection', '54px')">
+                <i class="material-icons">edit</i>
+            </a>
+            <a href="#" onclick="showHidePendant('deleteCollection', '54px')">
+                <i class="material-icons">delete_forever</i>
+            </a>
+        </h1>
+
+        <div class="pendant background-secondary color-complement" id="deleteCollection">
+            <div>
+                <div class="central">
+                    Really delete this collection?
+                </div>
+                <a href="/collections/delete/{{ collection.uuid }}/" class="material-icons">check_circle</a>
+            </div>
+        </div>
+
+        <div class="pendant background-secondary color-complement" id="editCollection">
+            <form method="post" action="/collections/edit/{{ collection.uuid }}/save/">
+                {% csrf_token %}
+                <label class="selectable">
+                    <span>Name</span>
+                    <input name="name" autocomplete="off" value="{{ collection.name }}" required/>
+                </label>
+
+                <input type="submit" class="material-icons" value="check_circle"/>
+            </form>
+        </div>
+
+        <div class="pendant background-secondary color-complement" id="exportCollection">
+            <form method="post" action="/collections/{{ collection.uuid }}/export/">
+                {% csrf_token %}
+                <label class="selectable">
+                    <span>Export type</span>
+                    <select name="export">
+                        {% for ex in exports %}
+                            <option value="{{ ex.uuid }}">{{ ex.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <input type="submit" class="material-icons" value="check_circle"/>
+            </form>
+        </div>
+
+        <div class="column-content">
+            {% if exported %}
+                <div class="background-complement color-primary explain-type">
+                    Export done.
+                </div>
+            {% endif %}
+            <ul class="items">
+                {% for t in collection.elements %}
+                    <li class="background-hint color-primary{% if t == item %} selected{% endif %}{% if t.is_valid == False %} error{% endif %}"
+                        onclick="goto('/collections/items/{{ t.uuid }}/')">
+                        {% for field in visible %}
+                            <span class="info color-hint">{{ field.name }}</span>
+                            <span class="sublisting">
+                            {% for val in t|values_for:field.field %}
+                                <span>{{ val.value|truncatechars:30 }}</span>
+                            {% endfor %}
+                        </span>
+                        {% endfor %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    {% block itemvalues %}
+    {% endblock %}
+{% endblock %}

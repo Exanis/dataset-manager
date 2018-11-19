@@ -1,0 +1,247 @@
+html {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    height: 100%;
+    font-family: "Roboto", Verdana, Arial, sans-serif;
+    flex-direction: row;
+    padding: 0;
+    margin: 0;
+    background-color: #f5f5f5;
+    color: #191716;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style-type: none;
+}
+
+input, textarea, select {
+    border: 0;
+    background: none;
+    padding: 5px;
+    color: inherit;
+    flex: 1;
+}
+
+input.material-icons {
+    border-bottom: none;
+    flex: 0;
+}
+
+.selectable {
+    position: relative;
+    border-bottom: 1px solid #a9a9a9;
+}
+
+.selectable::before {
+    content: "";
+    border-bottom: 1px solid;
+    width: 0;
+    left: 50%;
+    position: absolute;
+    transition: left 0.5s, width 0.5s;
+    bottom: -1px;
+}
+
+.selectable:focus-within::before {
+    width: 100%;
+    left: 0;
+}
+
+.selectable * {
+    outline: none;
+}
+
+.submitWrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+h1 {
+    padding: 10px;
+    font-size: 14px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+h1 .main-part {
+    flex: 1;
+}
+
+h1 > a {
+    padding: 0 5px;
+}
+
+#menu {
+    width: 50px;
+    height: 100%;
+}
+
+#menu ul {
+    padding: 0;
+}
+
+#menu li {
+    padding: 10px;
+}
+
+#menu li:hover {
+    background-color: #18063A
+}
+
+.column {
+    width: 400px;
+    height: 100%;
+    overflow: auto;
+    border-right: 1px solid #462E74;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.column-content {
+    height: calc(100% - 48px);
+    overflow:auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.pendant {
+    margin-left: 10px;
+    margin-right: 10px;
+    max-height: 0;
+    transition: max-height 0.5s;
+    overflow: hidden;
+    position: absolute;
+    left: 0;
+    top: 48px;
+    width: calc(100% - 20px);
+    box-sizing: border-box;
+    z-index: 99;
+}
+
+.pendant.visible {
+    max-height: 100px;
+}
+
+.pendant > * {
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+}
+
+.pendant.vertical > * {
+    flex-direction: column;
+}
+
+.pendant label, .pendant .central {
+    flex: 1;
+}
+
+span.vertical {
+    display: flex;
+    flex-direction: column;
+}
+
+ul.items {
+    padding: 0;
+    margin: 20px 10px 0 10px;
+}
+
+ul.items li {
+    min-height: 40px;
+    padding: 5px 5px 5px 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+ul.items li.selected {
+    border-right: 3px solid;
+    padding-right: 2px;
+}
+
+ul.items li:hover {
+    border-left: 2px solid;
+    padding-left: 8px;
+}
+
+ul.items li.error, .error {
+    background-color: rgba(220, 150, 90, 0.8);
+}
+
+.sublisting {
+    display: flex;
+    flex-direction: column;
+    padding-left: 10px;
+}
+
+label {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+label > span {
+    font-size: 9px;
+}
+
+.explain-type {
+    margin: 20px 10px 0;
+    padding: 10px;
+    text-align: justify;
+}
+
+.info {
+    font-size: 10px;
+}
+
+.container {
+    width: 100%;
+    position: relative;
+    margin-top: 20px;
+}
+
+ul.items li.with-button {
+    display: flex;
+    flex-direction: row;
+}
+
+.with-button *:first-child {
+    flex: 1;
+}
+
+.with-button .material-icons {
+    padding: 5px;
+}
+
+.line {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.line > label {
+    flex: 1;
+}
+
+.line > input {
+    flex: 0 1 auto;
+    margin: 0 5px;
+}
+
+.space-after {
+    margin-bottom: 10px;
+}

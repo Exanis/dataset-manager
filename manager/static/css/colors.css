@@ -1,0 +1,17 @@
+.color-primary { color: #0D1b2A; border-color: #0D1b2A; }	/* Main Primary color */
+.color-secondary { color: #2D3b4A; border-color: #2D3b4A; }
+.color-hint { color: #9A9E6F; border-color: #9A9E6F; font-weight: bold; }
+.color-complement { color: #F3E0EC; border-color: #F3E0EC; }	/* Main Complement color */
+.color-complement-hint { color: #EAF0CE; border-color: #EAF0CE; }
+
+.background-primary { background-color: #0D1b2A }	/* Main Primary color */
+.background-secondary { background-color: #2D3b4A }
+.background-hint { background-color: rgba(213, 213, 213, 0.8) }
+.background-complement { background-color: #F3E0EC }	/* Main Complement color */
+.background-complement-hint { background-color: #EAF0CE }
+
+.background-primary option { background-color: #0D1b2A }	/* Main Primary color */
+.background-secondary option { background-color: #2D3b4A }
+.background-hint option { background-color: rgba(213, 213, 213, 0.8) }
+.background-complement option { background-color: #F3E0EC }	/* Main Complement color */
+.background-complement-hint option { background-color: #EAF0CE }

@@ -1,0 +1,108 @@
+{% extends 'collections/collection.html' %}
+{% load item_values %}
+
+{% block itemvalues %}
+    <div class="column">
+        <h1 class="color-complement background-primary">
+            {% if fix %}
+            <div class="main-part">
+                Fix collection items
+            </div>
+            <a href="#">
+                <i class="material-icons">refresh</i>
+            </a>
+            {% else %}
+            <div class="main-part">
+                Generate items
+            </div>
+            <a href="#">
+                <i class="material-icons">pets</i>
+            </a>
+            {% endif %}
+        </h1>
+
+        <div class="column-content">
+            <form method="post" action="/collections/{{ collection.uuid }}/generate/do/{% if fix %}fix/{% endif %}"
+                  class="background-hint explain-type">
+                {% csrf_token %}
+                {% if fix == False %}
+                <label class="selectable">
+                    <span>Number of items to generate</span>
+                    <input name="count" min="1" type="number" step="1" autocomplete="off" required />
+                </label>
+                {% else %}
+                <label>
+                    <span>Enforce fixed properties</span>
+                    <input type="checkbox" name="enforce" />
+                </label>
+                <label>
+                    <span>Regenerate valid properties</span>
+                    <input type="checkbox" name="all" />
+                </label>
+                {% endif %}
+
+                <h1 class="color-complement background-primary space-after">
+                    <div class="main-part">
+                        Fixed properties
+                    </div>
+                </h1>
+
+                {% for f in needed %}
+                <span class="line">
+                    <input type="checkbox" name="{{ f.field.uuid }}-fixed"/>
+                    {% if f.field.data_type.data_type == 'int' %}
+                        <label class="selectable">
+                            <span>{{ f.name }}</span>
+                            <input autocomplete="off" name="{{ f.field.uuid }}" type="number"
+                                min="{{ f.field.data_type.min }}" max="{{ f.field.data_type.max }}"
+                                step="1"/>
+                        </label>
+                    {% endif %}
+                    {% if f.field.data_type.data_type == 'float' %}
+                        <label class="selectable">
+                            <span>{{ f.name }}</span>
+                            <input autocomplete="off" name="{{ f.field.uuid }}" type="number"
+                                min="{{ f.field.data_type.min }}" max="{{ f.field.data_type.max }}"
+                                step="0.01"/>
+                        </label>
+                    {% endif %}
+                    {% if f.field.data_type.data_type == 'bool' %}
+                        <label class="selectable">
+                            <span>{{ f.name }}</span>
+                            <select name="{{ f.field.uuid }}">
+                                <option value="true">True</option>
+                                <option value="false">False</option>
+                            </select>
+                        </label>
+                    {% endif %}
+                    {% if f.field.data_type.data_type == 'lorem' %}
+                        <label class="selectable">
+                            <span>{{ f.name }}</span>
+                            <textarea name="{{ f.field.uuid }}" rows="7"></textarea>
+                        </label>
+                    {% endif %}
+                    {% if f.field.data_type.data_type == 'str' or f.field.data_type.data_type == 'uuid' or f.field.data_type.data_type == 'person' %}
+                        <label class="selectable">
+                            <span>{{ f.name }}</span>
+                            <input autocomplete="off" name="{{ f.field.uuid }}"/>
+                        </label>
+                    {% endif %}
+                    {% if f.field.data_type.data_type == 'options' %}
+                        <label class="selectable">
+                            <span>{{ f.name }}</span>
+                            <select name="{{ f.field.uuid }}">
+                                {% for val in f.field.data_type.options %}
+                                    <option value="{{ val.name }}">{{ val.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    {% endif %}
+                </span>
+                {% endfor %}
+                <div class="submitWrapper">
+                    <input type="submit" class="material-icons" value="check_circle"/>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
