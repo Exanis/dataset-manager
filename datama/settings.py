@@ -19,6 +19,10 @@ DATABASES = {
     'default': ENV.db()
 }
 
+CELERY_APP = 'datama'
+CELERY_BROKER_URL = 'amqp://localhost'
+CELERY_BIN = 'celery'
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

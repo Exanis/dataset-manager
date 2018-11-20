@@ -1,6 +1,6 @@
-from random import randint
 from django.shortcuts import render, redirect, get_object_or_404
-from manager import models, generators, validators
+from django.db.transaction import atomic
+from manager import models, tasks
 
 
 def collections(request):
@@ -33,36 +33,14 @@ def collections_edit(request, uuid):
     return redirect('display_collection', uuid=target.uuid)
 
 
-def _make_visible_list(target_type, include_all=False, prefix='', forbidden=None):
-    result = []
-    if forbidden is None:
-        forbidden = []
-    if target_type in forbidden:
-        return result
-    for field in target_type.fields:
-        if field.recap or include_all:
-            if field.data_type.data_type == 'struct':
-                result = result + _make_visible_list(
-                    field.data_type,
-                    include_all,
-                    field.name + ' > ',
-                    [target_type] + forbidden
-                )
-            else:
-                result.append({
-                    'name': prefix + field.name,
-                    'field': field
-                })
-    return result
-
-
+@atomic
 def items(request, uuid, exported=0):
     collection = get_object_or_404(models.Collection, uuid=uuid)
     return render(
         request,
         'collections/collection.html', {
             'exported': exported == 1,
-            'visible': _make_visible_list(collection.type),
+            'visible': tasks.make_visible_list(collection.type),
             'exports': models.Export.objects.all(),
             'collection': collection,
             'collections': models.Collection.objects.all(),
@@ -85,6 +63,7 @@ def items_delete(request, uuid):
     return redirect('display_collection', uuid=target)
 
 
+@atomic
 def items_value(request, uuid):
     obj = get_object_or_404(models.CollectionElement, uuid=uuid)
     return render(
@@ -92,9 +71,9 @@ def items_value(request, uuid):
         'collections/item.html',
         {
             'exported': False,
-            'visible': _make_visible_list(obj.collection.type),
+            'visible': tasks.make_visible_list(obj.collection.type),
             'exports': models.Export.objects.all(),
-            'fields': _make_visible_list(obj.collection.type, include_all=True),
+            'fields': tasks.make_visible_list(obj.collection.type, include_all=True),
             'collection': obj.collection,
             'collections': models.Collection.objects.all(),
             'item': obj,
@@ -103,6 +82,7 @@ def items_value(request, uuid):
     )
 
 
+@atomic
 def items_value_add(request, uuid):
     parent = get_object_or_404(models.CollectionElement, uuid=uuid)
     data_type = get_object_or_404(models.DataTypeElement, uuid=request.POST['type'])
@@ -129,36 +109,25 @@ def items_value_del(request, uuid):
     return redirect('display_value', uuid=target)
 
 
-def _generate(item, field, count):
-    gen = getattr(generators, field.data_type.data_type + "_generator")
-    cnt = len(item.values_for(field))
-    for _ in range(count):
-        value = gen(field.data_type, cnt)
-        cnt += 1
-        models.CollectionElementValue.objects.create(
-            element=item,
-            key=field,
-            value=value
-        )
-
-
+@atomic
 def items_value_generate(request, item_uuid, field_uuid):
     item = get_object_or_404(models.CollectionElement, uuid=item_uuid)
     field = get_object_or_404(models.DataTypeElement, uuid=field_uuid)
-    _generate(item, field, int(request.POST['count']))
+    tasks.generate(item, field, int(request.POST['count']))
     return redirect('display_value', uuid=item.uuid)
 
 
+@atomic
 def collection_items_generate_selection(request, uuid):
     collection = get_object_or_404(models.Collection, uuid=uuid)
-    fields = _make_visible_list(collection.type, include_all=True)
+    fields = tasks.make_visible_list(collection.type, include_all=True)
     needed_fields = [f for f in fields if f['field'].data_type.fixed]
     return render(
         request,
         'collections/generate.html', {
             'fix': False,
             'exported': False,
-            'visible': _make_visible_list(collection.type),
+            'visible': tasks.make_visible_list(collection.type),
             'exports': models.Export.objects.all(),
             'needed': needed_fields,
             'collection': collection,
@@ -170,44 +139,24 @@ def collection_items_generate_selection(request, uuid):
 
 
 def collection_items_generate(request, uuid):
-    collection = get_object_or_404(models.Collection, uuid=uuid)
-    generate_count = int(request.POST['count'])
-    fields = _make_visible_list(collection.type, include_all=True)
-    for _ in range(generate_count):
-        item = models.CollectionElement.objects.create(collection=collection)
-        for field_base in fields:
-            field = field_base['field']
-            count = randint(field.min_count, field.max_count)
-            if str(field.uuid) + '-fixed' in request.POST:
-                val = request.POST[str(field.uuid)]
-                if field.data_type.data_type in ['datetime', 'time']:
-                    timeval = val.split('T')
-                    timepart = timeval[1] if len(timeval) == 2 else timeval[0]
-                    datepart = timeval[0] + 'T' if len(timeval) == 2 else ''
-                    if len(timepart) == 5:
-                        timepart += ':00'
-                    val = datepart + timepart
-                for __ in range(count):
-                    models.CollectionElementValue.objects.create(
-                        element=item,
-                        key=field,
-                        value=val
-                    )
-            else:
-                _generate(item, field, count)
-    return redirect('display_collection', uuid=collection.uuid)
+    formatted = {
+        key: request.POST[key] for key in request.POST
+    }
+    tasks.generate_collection.delay(uuid, formatted)
+    return redirect('display_collection', uuid=uuid)
 
 
+@atomic
 def collection_fix(request, uuid):
     collection = get_object_or_404(models.Collection, uuid=uuid)
-    fields = _make_visible_list(collection.type, include_all=True)
+    fields = tasks.make_visible_list(collection.type, include_all=True)
     needed_fields = [f for f in fields if f['field'].data_type.fixed]
     return render(
         request,
         'collections/generate.html', {
             'fix': True,
             'exported': False,
-            'visible': _make_visible_list(collection.type),
+            'visible': tasks.make_visible_list(collection.type),
             'exports': models.Export.objects.all(),
             'needed': needed_fields,
             'collection': collection,
@@ -219,76 +168,13 @@ def collection_fix(request, uuid):
 
 
 def collection_items_generate_fix(request, uuid):
-    collection = get_object_or_404(models.Collection, uuid=uuid)
-    fields = _make_visible_list(collection.type, include_all=True)
-    enforce = 'enforce' in request.POST
-    generate_all = 'all' in request.POST
-    for item in collection.elements:
-        for field_base in fields:
-            field = field_base['field']
-            if str(field.uuid) + '-fixed' in request.POST and enforce:
-                item.values_for(field).delete()
-                count = randint(field.min_count, field.max_count)
-                val = request.POST[str(field.uuid)]
-                if field.data_type.data_type in ['datetime', 'time']:
-                    timeval = val.split('T')
-                    timepart = timeval[1] if len(timeval) == 2 else timeval[0]
-                    datepart = timeval[0] + 'T' if len(timeval) == 2 else ''
-                    if len(timepart) == 5:
-                        timepart += ':00'
-                    val = datepart + timepart
-                for _ in range(count):
-                    models.CollectionElementValue.objects.create(
-                        element=item,
-                        key=field,
-                        value=val
-                    )
-            else:
-                if generate_all or not item.is_field_valid(field):
-                    validator = getattr(validators, field.data_type.data_type + '_validator')
-                    values = item.values_for(field)
-                    existing = len(values)
-                    for value in values:
-                        if generate_all or not validator(value.value, field.data_type):
-                            value.delete()
-                            existing -= 1
-                    count = randint(field.min_count - existing, field.max_count - existing)
-                    if str(field.uuid) + '-fixed' in request.POST:
-                        val = request.POST[str(field.uuid)]
-                        if field.data_type.data_type in ['datetime', 'time']:
-                            timeval = val.split('T')
-                            timepart = timeval[1] if len(timeval) == 2 else timeval[0]
-                            datepart = timeval[0] + 'T' if len(timeval) == 2 else ''
-                            if len(timepart) == 5:
-                                timepart += ':00'
-                            val = datepart + timepart
-                        for _ in range(count):
-                            models.CollectionElementValue.objects.create(
-                                element=item,
-                                key=field,
-                                value=val
-                            )
-                    else:
-                        _generate(item, field, count)
-    return redirect('display_collection', uuid=collection.uuid)
+    formatted = {
+        key: request.POST[key] for key in request.POST
+    }
+    tasks.fix_collection.delay(uuid, formatted)
+    return redirect('display_collection', uuid=uuid)
 
 
 def collection_duplicate(request, uuid):
-    old_collection = get_object_or_404(models.Collection, uuid=uuid)
-    collection = models.Collection.objects.create(
-        name=request.POST['name'],
-        type=old_collection.type
-    )
-    for old_item in old_collection.elements:
-        item = models.CollectionElement.objects.create(
-            order=old_item.order,
-            collection=collection
-        )
-        for old_value in old_item.values:
-            models.CollectionElementValue.objects.create(
-                element=item,
-                value=old_value.value,
-                key=old_value.key,
-                order=old_value.order
-            )
-    return redirect('display_collection', uuid=collection.uuid)
+    tasks.duplicate_collection.delay(uuid, request.POST['name'])
+    return redirect('home')

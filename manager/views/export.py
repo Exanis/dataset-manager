@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render, get_object_or_404
-from manager import models, formats, exporters
+from manager import models, formats, exporters, tasks
 
 
 def exports(request):
@@ -113,20 +113,5 @@ def export_collection(request, uuid):
 
 
 def export_duplicate(request, uuid):
-    old_export = get_object_or_404(models.Export, uuid=uuid)
-    export = models.Export.objects.create(
-        name=request.POST['name'],
-        type=old_export.type,
-        username=old_export.username,
-        password=old_export.password,
-        url=old_export.url,
-        method=old_export.method,
-        flatten=old_export.flatten
-    )
-    for param in old_export.params:
-        models.ExportParam.objects.create(
-            export=export,
-            name=param.name,
-            value=param.value
-        )
-    return redirect('display_export', uuid=uuid)
+    tasks.duplicate_export.delay(uuid, request.POST['name'])
+    return redirect('index_export')

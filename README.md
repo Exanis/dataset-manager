@@ -55,6 +55,9 @@ by the code and that are basically never checked after being sent (like, "did th
 This is because it's meant to be used as a tool inside a team that is not likely to go out of it's way and live-edit the HTML to hack itself;
 this however is not true when you need to deal with unknown people.
 
+Amother potential security issue is that the application, as well as celery, are ran using the **root** user of your docker container.
+This is done to avoid potential authorization problem with sqlite databases mounted as volumes, but it may lead to security breach (limited to your docker container, mind you, but still.)
+
 Short version? It's probably a bad idea to make this accessible for everybody. Keep it to your team.
 
 ## Accessing the tool

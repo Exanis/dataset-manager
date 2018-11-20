@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from manager import models
+from manager import models, tasks
 
 
 def types(request):
@@ -120,26 +120,5 @@ def subtypes_delete(request, uuid):
 
 
 def types_duplicate(request, uuid):
-    old_type = get_object_or_404(models.DataType, uuid=uuid)
-    new_type = models.DataType.objects.create(
-        name=request.POST['name'],
-        min=old_type.min,
-        max=old_type.max,
-        data_type=old_type.data_type,
-        fixed=old_type.fixed
-    )
-    for option in old_type.options:
-        models.DataTypeOption.objects.create(
-            base_type=new_type,
-            name=option.name
-        )
-    for field in old_type.fields:
-        models.DataTypeElement.objects.create(
-            name=field.name,
-            base_type=new_type,
-            data_type=field.data_type,
-            recap=field.recap,
-            min_count=field.min_count,
-            max_count=field.max_count
-        )
-    return redirect('types_detail', uuid=new_type.uuid)
+    tasks.duplicate_type.delay(uuid, request.POST['name'])
+    return redirect('types')
