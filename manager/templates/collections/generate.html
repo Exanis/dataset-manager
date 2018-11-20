@@ -81,6 +81,24 @@
                             <textarea name="{{ f.field.uuid }}" rows="7"></textarea>
                         </label>
                     {% endif %}
+                    {% if f.field.data_type.data_type == 'datetime' %}
+                        <label class="selectable">
+                            <span>{{ f.name }}</span>
+                            <input autocomplete="off" name="{{ f.field.uuid }}" type="datetime-local" step="1" />
+                        </label>
+                    {% endif %}
+                    {% if f.field.data_type.data_type == 'date' %}
+                        <label class="selectable">
+                            <span>{{ f.name }}</span>
+                            <input autocomplete="off" name="{{ f.field.uuid }}" type="date" />
+                        </label>
+                    {% endif %}
+                    {% if f.field.data_type.data_type == 'time' %}
+                        <label class="selectable">
+                            <span>{{ f.name }}</span>
+                            <input autocomplete="off" name="{{ f.field.uuid }}" type="time" step="1" />
+                        </label>
+                    {% endif %}
                     {% if f.field.data_type.data_type == 'str' or f.field.data_type.data_type == 'uuid' or f.field.data_type.data_type == 'person' %}
                         <label class="selectable">
                             <span>{{ f.name }}</span>

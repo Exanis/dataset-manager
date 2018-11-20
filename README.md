@@ -30,13 +30,12 @@ file. You will then need to update the ``DATABASE_URL`` to point it to your serv
 ``psql://user:mypassword@my-server/my-database``
 
 I test Dataset manager with sqlite3 (and sometime postgres), but there is nothing really strange in it so it should work with any
-sgbd supported by Django: postgresql, mysql, sqlite and oracle.
+sgbd supported by Django: postgresql, mysql, sqlite and oracle. However, since I'm using neither mysql nor oracle, I didn't included them to
+the requirements file; feel free to send a PR to improve that if needed.
 
 Dataset manager use [django-environ](https://github.com/joke2k/django-environ) to configure database connection. Here is the corresponding url prefix:
 - PostgreSQL: ``postgres://``, ``pgsql://``, ``psql://`` or ``postgresql://``
-- MySQL: ``mysql://`` or ``mysql2://``
 - SQLITE: ``sqlite://``
-- Oracle: ``oracle://``
 
 ## Other variables
 

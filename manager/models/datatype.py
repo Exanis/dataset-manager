@@ -16,7 +16,10 @@ class DataType(models.Model):
         ('options', 'Options'),
         ('struct', 'Collection'),
         ('uuid', 'UUID'),
-        ('person', 'Person')
+        ('person', 'Person'),
+        ('date', 'Date'),
+        ('datetime', 'Datetime'),
+        ('time', 'Time')
     ], default='str')
     fixed = models.BooleanField(default=False)
     

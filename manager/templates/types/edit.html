@@ -42,24 +42,35 @@
                         <option {% if type.data_type == 'uuid' %}selected{% endif %} value="uuid">UUID</option>
                         <option {% if type.data_type == 'person' %}selected{% endif %} value="person">Person</option>
                         <option {% if type.data_type == 'struct' %}selected{% endif %} value="struct">Collection</option>
+                        <option {% if type.data_type == 'date' %}selected{% endif %} value="date">Date</option>
+                        <option {% if type.data_type == 'datetime' %}selected{% endif %} value="datetime">Datetime</option>
+                        <option {% if type.data_type == 'time' %}selected{% endif %} value="time">Time</option>
                     </select>
                 </label>
                 {% if type.data_type != 'struct' %}
                     {% if type.data_type != 'bool' and type.data_type != 'uuid' and type.data_type != 'person' %}
                         {% if type.data_type == 'int' or type.data_type == 'float' %}
                             <label class="selectable">
-                                <span>Min</span> <input name="min" value="{{ type.min }}" autocomplete="off" required />
+                                <span>Min</span> <input name="min" value="{{ type.min }}" type="number" autocomplete="off" required />
                             </label>
                             <label class="selectable">
-                                <span>Max</span> <input name="max" value="{{ type.max }}" autocomplete="off" required />
+                                <span>Max</span> <input name="max" value="{{ type.max }}" type="number" autocomplete="off" required />
                             </label>
                         {% endif %}
                         {% if type.data_type == 'lorem' or type.data_type == 'str' %}
                             <label class="selectable">
-                                <span>Min length</span> <input name="min" value="{{ type.min }}" autocomplete="off" required />
+                                <span>Min length</span> <input name="min" value="{{ type.min }}" type="number" autocomplete="off" required />
                             </label>
                             <label class="selectable">
-                                <span>Max length</span> <input name="max" value="{{ type.max }}" autocomplete="off" required />
+                                <span>Max length</span> <input name="max" value="{{ type.max }}" type="number" autocomplete="off" required />
+                            </label>
+                        {% endif %}
+                        {% if type.data_type == 'datetime' or type.data_type == 'date' %}
+                            <label class="selectable">
+                                <span>Min days start</span> <input name="min" value="{{ type.min }}" type="number" step="1" autocomplete="off" required />
+                            </label>
+                            <label class="selectable">
+                                <span>Max days end</span> <input name="max" value="{{ type.max }}" type="number" step="1" autocomplete="off" required />
                             </label>
                         {% endif %}
                     {% endif %}
@@ -126,6 +137,27 @@
                     A <span class="color-hint">Person</span> field will contain fake contact data for someone. The exact nature
                     of the contact data depends on the number of values in the field: the first one will be a full name, then an
                     email address, then a phone number, then a mail address, then if will loop.
+                {% endif %}
+
+                {% if type.data_type == 'datetime' %}
+                    A <span class="color-hint">Datetime</span> field will contain a date and time information, with no timezone.
+                    The date generated will be any moment between <span class="color-hint">{{ type.min }}</span> and
+                    <span class="color-hint">{{ type.max }}</span> days around the generation moment; however, to avoid constantly
+                    changing dataset, this is generation-rule only and will not be enforced as a part of data consistency. The generated
+                    format will match ISO format, as such: "2002-08-23T17:51:12" (%Y-%m-%dT%H:%M:%s)
+                {% endif %}
+
+                {% if type.data_type == 'date' %}
+                    A <span class="color-hint">Date</span> field will contain a date information, with no time informations.
+                    The date generated will be any moment between <span class="color-hint">{{ type.min }}</span> and
+                    <span class="color-hint">{{ type.max }}</span> days around the generation moment; however, to avoid constantly
+                    changing dataset, this is generation-rule only and will not be enforced as a part of data consistency. The generated
+                    format will match ISO format, as such: "2002-08-23" (%Y-%m-%d)
+                {% endif %}
+
+                {% if type.data_type == 'time' %}
+                    A <span class="color-hint">time</span> field will contain a date and time information, with no timezone.
+                    The time will be any moment in the day. The generated time will match ISO format, as such: "17:51:12" (%H:%M:%S)
                 {% endif %}
 
                 {% if type.data_type == 'struct' %}

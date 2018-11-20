@@ -106,10 +106,18 @@ def items_value(request, uuid):
 def items_value_add(request, uuid):
     parent = get_object_or_404(models.CollectionElement, uuid=uuid)
     data_type = get_object_or_404(models.DataTypeElement, uuid=request.POST['type'])
-    obj = models.CollectionElementValue.objects.create(
+    val = request.POST['value']
+    if data_type.data_type.data_type in ['datetime', 'time']:
+        timeval = val.split('T')
+        timepart = timeval[1] if len(timeval) == 2 else timeval[0]
+        datepart = timeval[0] + 'T' if len(timeval) == 2 else ''
+        if len(timepart) == 5:
+            timepart += ':00'
+        val = datepart + timepart
+    models.CollectionElementValue.objects.create(
         element=parent,
         key=data_type,
-        value=request.POST['value']
+        value=val
     )
     return redirect('display_value', uuid=parent.uuid)
 
@@ -171,11 +179,19 @@ def collection_items_generate(request, uuid):
             field = field_base['field']
             count = randint(field.min_count, field.max_count)
             if str(field.uuid) + '-fixed' in request.POST:
+                val = request.POST[str(field.uuid)]
+                if field.data_type.data_type in ['datetime', 'time']:
+                    timeval = val.split('T')
+                    timepart = timeval[1] if len(timeval) == 2 else timeval[0]
+                    datepart = timeval[0] + 'T' if len(timeval) == 2 else ''
+                    if len(timepart) == 5:
+                        timepart += ':00'
+                    val = datepart + timepart
                 for __ in range(count):
                     models.CollectionElementValue.objects.create(
                         element=item,
                         key=field,
-                        value=request.POST[str(field.uuid)]
+                        value=val
                     )
             else:
                 _generate(item, field, count)
@@ -213,11 +229,19 @@ def collection_items_generate_fix(request, uuid):
             if str(field.uuid) + '-fixed' in request.POST and enforce:
                 item.values_for(field).delete()
                 count = randint(field.min_count, field.max_count)
+                val = request.POST[str(field.uuid)]
+                if field.data_type.data_type in ['datetime', 'time']:
+                    timeval = val.split('T')
+                    timepart = timeval[1] if len(timeval) == 2 else timeval[0]
+                    datepart = timeval[0] + 'T' if len(timeval) == 2 else ''
+                    if len(timepart) == 5:
+                        timepart += ':00'
+                    val = datepart + timepart
                 for _ in range(count):
                     models.CollectionElementValue.objects.create(
                         element=item,
                         key=field,
-                        value=request.POST[str(field.uuid)]
+                        value=val
                     )
             else:
                 if generate_all or not item.is_field_valid(field):
@@ -230,11 +254,19 @@ def collection_items_generate_fix(request, uuid):
                             existing -= 1
                     count = randint(field.min_count - existing, field.max_count - existing)
                     if str(field.uuid) + '-fixed' in request.POST:
+                        val = request.POST[str(field.uuid)]
+                        if field.data_type.data_type in ['datetime', 'time']:
+                            timeval = val.split('T')
+                            timepart = timeval[1] if len(timeval) == 2 else timeval[0]
+                            datepart = timeval[0] + 'T' if len(timeval) == 2 else ''
+                            if len(timepart) == 5:
+                                timepart += ':00'
+                            val = datepart + timepart
                         for _ in range(count):
                             models.CollectionElementValue.objects.create(
                                 element=item,
                                 key=field,
-                                value=request.POST[str(field.uuid)]
+                                value=val
                             )
                     else:
                         _generate(item, field, count)

@@ -84,6 +84,24 @@
                                     <textarea name="value" rows="7"></textarea>
                                 </label>
                             {% endif %}
+                            {% if field.field.data_type.data_type == 'datetime' %}
+                                <label class="selectable">
+                                    <span>Value</span>
+                                    <input autocomplete="off" name="value" type="datetime-local" step="1" />
+                                </label>
+                            {% endif %}
+                            {% if field.field.data_type.data_type == 'date' %}
+                                <label class="selectable">
+                                    <span>Value</span>
+                                    <input autocomplete="off" name="value" type="date" />
+                                </label>
+                            {% endif %}
+                            {% if field.field.data_type.data_type == 'time' %}
+                                <label class="selectable">
+                                    <span>Value</span>
+                                    <input autocomplete="off" name="value" type="time" step="1" />
+                                </label>
+                            {% endif %}
                             {% if field.field.data_type.data_type == 'str' or field.field.data_type.data_type == 'uuid' or field.field.data_type.data_type == 'person' %}
                                 <label class="selectable">
                                     <span>Value</span>

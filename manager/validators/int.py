@@ -1,3 +1,6 @@
 def int_validator(val, t):
-    fval = int(val)
+    try:
+        fval = int(val)
+    except ValueError:
+        return False
     return t.min <= fval <= t.max
