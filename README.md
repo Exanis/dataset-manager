@@ -1,11 +1,11 @@
 # Dataset manager
-A simple tool that aim to help a team manage and export test dataset. It aims to let the dev team define a schema, then
+A simple tool that aim to help a team manage and export test datasets. It aims to let the dev team define a schema, then
 generate a random dataset using this schema and allow people to export it to various target (API, database, elasticsearch, json...)
 
 ## TL;DR
 ````bash
 mkdir -p database
-docker run --rm -v database:/db -e DATABASE_URL=sqlite:////db/db.sqlite3 -p 8000:8000 dataset-manager
+docker run --rm -v database:/db -e DATABASE_URL=sqlite:////db/db.sqlite3 -p 8000:8000 exanis/dataset-manager
 ````
 
 ## Warning
