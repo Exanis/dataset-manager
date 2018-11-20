@@ -3,4 +3,5 @@ django-environ==0.4.5
 requests==2.20.1
 Faker==1.0.0
 gunicorn==19.9.0
+psycopg2-binary==2.7.6.1
 -r database_requirements.txt
