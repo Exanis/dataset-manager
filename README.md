@@ -56,6 +56,10 @@ by the code and that are basically never checked after being sent (like, "did th
 This is because it's meant to be used as a tool inside a team that is not likely to go out of it's way and live-edit the HTML to hack itself;
 this however is not true when you need to deal with unknown people.
 
+On the same topic, the requests are served directly by gunicorn, and so are the static files. While this is an easy way to do,
+it's by no mean a **good** one on a production-oriented environment. You will see no down-side if you are the only one using it, but it will impact
+the performances of the tool if there is multiple users. That's something I intend on getting ride of, though.
+
 Short version? It's probably a bad idea to make this accessible for everybody. Keep it to your team.
 
 ## Accessing the tool
