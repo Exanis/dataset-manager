@@ -110,7 +110,7 @@ def export_collection(request, uuid):
                 )
             )
     exporter = getattr(exporters, export.type + '_export')
-    return exporter(result, export, collection)
+    return exporter(result, export, collection, request)
 
 
 def export_duplicate(request, uuid):
