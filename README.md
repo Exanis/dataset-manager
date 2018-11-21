@@ -66,6 +66,7 @@ you should really change those settings. The good news is: there are env variabl
 - ``DATABASE_URL``: See previous section.
 - ``LANGUAGE_CODE``: See previous section.
 - ``SERVER_PASSWORD``: See previous section.
+- ``TIMEZONE``: Allow you to set the timezone used by the application. This is useful for tasks visibility but have no impact on generated data. Default value is UTC.
 
 ### Warning
 

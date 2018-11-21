@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from manager import models, tasks
 
@@ -120,5 +121,10 @@ def subtypes_delete(request, uuid):
 
 
 def types_duplicate(request, uuid):
-    tasks.duplicate_type.delay(uuid, request.POST['name'])
+    datatype = get_object_or_404(models.DataType, uuid=uuid)
+    task = models.Task.objects.create(
+        name='Duplicating type ' + datatype.name
+    )
+    tasks.duplicate_type.delay(task.uuid, uuid, request.POST['name'])
+    messages.success(request, 'Type duplication planned.')
     return redirect('types')

@@ -6,3 +6,4 @@ from .collections import collections, collections_add, collections_delete, items
     collection_duplicate
 from .export import exports, exports_add, exports_del, exports_param_add, exports_param_del, exports_view,\
     exports_update, export_collection, export_duplicate
+from .tasks import tasks

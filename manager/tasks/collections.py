@@ -1,6 +1,7 @@
 from random import randint
 from celery import shared_task
 from manager import models, validators, generators
+from .utils import mark_task_as_done, start_task
 
 
 def generate(item, field, count, cnt=None):
@@ -41,7 +42,8 @@ def make_visible_list(target_type, include_all=False, prefix='', forbidden=None)
 
 
 @shared_task
-def generate_collection(uuid, request):
+def generate_collection(task, uuid, request):
+    start_task(task)
     collection = models.Collection.objects.get(uuid=uuid)
     generate_count = int(request['count'])
     fields = make_visible_list(collection.type, include_all=True)
@@ -67,10 +69,12 @@ def generate_collection(uuid, request):
                     )
             else:
                 generate(item, field, count)
+    mark_task_as_done(task)
 
 
 @shared_task
-def fix_collection(uuid, request):
+def fix_collection(task, uuid, request):
+    start_task(task)
     collection = models.Collection.objects.get(uuid=uuid)
     fields = make_visible_list(collection.type, include_all=True)
     enforce = 'enforce' in request
@@ -122,10 +126,12 @@ def fix_collection(uuid, request):
                             )
                     else:
                         generate(item, field, count, existing)
+    mark_task_as_done(task)
 
 
 @shared_task
-def duplicate_collection(uuid, name):
+def duplicate_collection(task, uuid, name):
+    start_task(task)
     old_collection = models.Collection.objects.get(uuid=uuid)
     collection = models.Collection.objects.create(
         name=name,
@@ -143,3 +149,4 @@ def duplicate_collection(uuid, name):
                 key=old_value.key,
                 order=old_value.order
             )
+    mark_task_as_done(task)

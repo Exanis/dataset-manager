@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.db.transaction import atomic
 from manager import models, tasks
 
@@ -34,12 +35,11 @@ def collections_edit(request, uuid):
 
 
 @atomic
-def items(request, uuid, exported=0):
+def items(request, uuid):
     collection = get_object_or_404(models.Collection, uuid=uuid)
     return render(
         request,
         'collections/collection.html', {
-            'exported': exported == 1,
             'visible': tasks.make_visible_list(collection.type),
             'exports': models.Export.objects.all(),
             'collection': collection,
@@ -70,7 +70,6 @@ def items_value(request, uuid):
         request,
         'collections/item.html',
         {
-            'exported': False,
             'visible': tasks.make_visible_list(obj.collection.type),
             'exports': models.Export.objects.all(),
             'fields': tasks.make_visible_list(obj.collection.type, include_all=True),
@@ -126,7 +125,6 @@ def collection_items_generate_selection(request, uuid):
         request,
         'collections/generate.html', {
             'fix': False,
-            'exported': False,
             'visible': tasks.make_visible_list(collection.type),
             'exports': models.Export.objects.all(),
             'needed': needed_fields,
@@ -142,7 +140,12 @@ def collection_items_generate(request, uuid):
     formatted = {
         key: request.POST[key] for key in request.POST
     }
-    tasks.generate_collection.delay(uuid, formatted)
+    collection = get_object_or_404(models.Collection, uuid=uuid)
+    task = models.Task.objects.create(
+        name='Generate ' + request.POST['count'] + ' items for collection ' + collection.name
+    )
+    tasks.generate_collection.delay(task.uuid, uuid, formatted)
+    messages.success(request, 'Generation task planned.')
     return redirect('display_collection', uuid=uuid)
 
 
@@ -155,7 +158,6 @@ def collection_fix(request, uuid):
         request,
         'collections/generate.html', {
             'fix': True,
-            'exported': False,
             'visible': tasks.make_visible_list(collection.type),
             'exports': models.Export.objects.all(),
             'needed': needed_fields,
@@ -171,10 +173,20 @@ def collection_items_generate_fix(request, uuid):
     formatted = {
         key: request.POST[key] for key in request.POST
     }
-    tasks.fix_collection.delay(uuid, formatted)
+    collection = get_object_or_404(models.Collection, uuid=uuid)
+    task = models.Task.objects.create(
+        name='Fixing schema for collection ' + collection.name
+    )
+    tasks.fix_collection.delay(task.uuid, uuid, formatted)
+    messages.success(request, 'Collection fix task planned.')
     return redirect('display_collection', uuid=uuid)
 
 
 def collection_duplicate(request, uuid):
-    tasks.duplicate_collection.delay(uuid, request.POST['name'])
+    collection = get_object_or_404(models.Collection, uuid=uuid)
+    task = models.Task.objects.create(
+        name='Duplicating collection ' + collection.name
+    )
+    tasks.duplicate_collection.delay(task.uuid, uuid, request.POST['name'])
+    messages.success(request, 'Collection duplication planned.')
     return redirect('home')

@@ -26,6 +26,18 @@
         function goto(target) {
             window.location.href = target;
         }
+
+        function hide() {
+            const obj = document.getElementById('messages');
+
+            if (obj)
+                setTimeout(function () {
+                    obj.style.top = '10px';
+                }, 10);
+                setTimeout(function () {
+                    obj.style.top = '-200px';
+                }, 5000);
+        }
     </script>
 </head>
 <body>
@@ -40,8 +52,39 @@
             <li>
                 <a href="/exports/" class="material-icons">cloud_upload</a>
             </li>
+            <li>
+                <a href="/tasks/" class="material-icons">hourglass_empty</a>
+            </li>
         </ul>
     </div>
+
+    {% if messages %}
+        <ul class="messages" id="messages">
+            {% for message in messages %}
+                <li class="{{ message.level_tag }} color-primary">
+                    <i class="material-icons">
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+                        info
+                        {% endif %}
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                        check_circle_outline
+                        {% endif %}
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+                        warning
+                        {% endif %}
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                        error
+                        {% endif %}
+                    </i>
+                    <span>{{ message }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <script type="text/javascript">
+            hide();
+        </script>
+    {% endif %}
 
     {% block content %}
     {% endblock %}

@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.shortcuts import redirect, render, get_object_or_404
 from manager import models, formats, exporters, tasks
 
@@ -113,5 +114,10 @@ def export_collection(request, uuid):
 
 
 def export_duplicate(request, uuid):
-    tasks.duplicate_export.delay(uuid, request.POST['name'])
+    export = get_object_or_404(models.Export, uuid=uuid)
+    task = models.Task.objects.create(
+        name='Duplicating export ' + export.name
+    )
+    tasks.duplicate_export.delay(task.uuid, uuid, request.POST['name'])
+    messages.success(request, 'Export duplication planned.')
     return redirect('index_export')

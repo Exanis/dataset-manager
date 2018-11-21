@@ -1,8 +1,9 @@
-import requests
+from django.contrib import messages
 from django.shortcuts import redirect
+from manager import models, tasks
 
 
-def api_export(data, export, collection):
+def api_export(data, export, collection, request):
     params = {}
     if export.username != '':
         params['auth'] = (export.username, export.password)
@@ -11,11 +12,9 @@ def api_export(data, export, collection):
     }
     for header in export.params:
         headers[header.name] = header.value
-    requests.request(
-        export.method,
-        export.url,
-        json=data,
-        headers=headers,
-        **params
+    task = models.Task.objects.create(
+        name='Export ' + collection.name + ' using ' + export.name
     )
-    return redirect('display_collection_exported', uuid=collection.uuid, exported=1)
+    tasks.api_export(task.uuid, export.method, export.url, params, data, headers)
+    messages.success(request, "Export started.")
+    return redirect('display_collection', uuid=collection.uuid)

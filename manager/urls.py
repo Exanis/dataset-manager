@@ -6,7 +6,6 @@ urlpatterns = [
     path('', views.collections, name='home'),
     path('collections/add/', views.collections_add),
     path('collections/edit/<uuid:uuid>/', views.items, name='display_collection'),
-    path('collections/edit/<uuid:uuid>/<int:exported>/', views.items, name='display_collection_exported'),
     path('collections/edit/<uuid:uuid>/save/', views.collections_edit),
     path('collections/delete/<uuid:uuid>/', views.collections_delete),
     path('collections/<uuid:uuid>/items/add/', views.items_add),
@@ -42,5 +41,7 @@ urlpatterns = [
     path('exports/edit/<uuid:uuid>/save/', views.exports_update),
     path('exports/<uuid:uuid>/param/add/', views.exports_param_add),
     path('exports/param/<uuid:uuid>/delete/', views.exports_param_del),
-    path('collections/<uuid:uuid>/export/', views.export_collection)
+    path('collections/<uuid:uuid>/export/', views.export_collection),
+
+    path('tasks/', views.tasks, name='tasks')
 ]

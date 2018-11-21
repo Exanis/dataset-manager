@@ -7,7 +7,8 @@ ENV = Env(
     SECRET_KEY=(str, 'change me'),
     DATABASE_URL=(str, 'sqlite:////tmp/db.sqlite3'),
     ALLOWED_HOSTS=(list, ['*']),
-    LANGUAGE_CODE=(str, 'en-us')
+    LANGUAGE_CODE=(str, 'en-us'),
+    TIMEZONE=(str, 'UTC')
 )
 
 ENV.read_env()
@@ -20,6 +21,9 @@ DATABASES = {
     'default': ENV.db()
 }
 LANGUAGE_CODE = ENV('LANGUAGE_CODE')
+TIME_ZONE = ENV('TIMEZONE')
+
+USE_TZ = True
 
 CELERY_APP = 'datama'
 CELERY_BROKER_URL = 'amqp://localhost'

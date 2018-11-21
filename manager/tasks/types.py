@@ -1,9 +1,11 @@
 from celery import shared_task
 from manager import models
+from .utils import mark_task_as_done, start_task
 
 
 @shared_task
-def duplicate_type(uuid, name):
+def duplicate_type(task, uuid, name):
+    start_task(task)
     old_type = models.DataType.objects.get(uuid=uuid)
     new_type = models.DataType.objects.create(
         name=name,
@@ -26,3 +28,4 @@ def duplicate_type(uuid, name):
             min_count=field.min_count,
             max_count=field.max_count
         )
+    mark_task_as_done(task)

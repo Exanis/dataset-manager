@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="column">
+        <h1 class="color-complement background-primary">
+            <div class="main-part">
+                Waiting tasks
+            </div>
+            <a>
+                <i class="material-icons">hourglass_empty</i>
+            </a>
+        </h1>
+
+        <div class="column-content">
+            <ul class="items">
+                {% for task in waiting %}
+                <li class="background-hint color-primary">
+                    <a>{{ task.name }}</a>
+                    <span class="info color-hint">Created: {{ task.registered }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="column">
+        <h1 class="color-complement background-primary">
+            <div class="main-part">
+                Started tasks
+            </div>
+            <a>
+                <i class="material-icons">hourglass_full</i>
+            </a>
+        </h1>
+
+        <div class="column-content">
+            <ul class="items">
+                {% for task in started %}
+                <li class="background-hint color-primary">
+                    <a>{{ task.name }}</a>
+                    <span class="info color-hint">Created: {{ task.registered }}</span>
+                    <span class="info color-hint">Started: {{ task.start }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="column">
+        <h1 class="color-complement background-primary">
+            <div class="main-part">
+                Finished tasks
+            </div>
+            <a>
+                <i class="material-icons">check_circle</i>
+            </a>
+        </h1>
+
+        <div class="column-content">
+            <ul class="items">
+                {% for task in done %}
+                <li class="background-hint color-primary">
+                    <a>{{ task.name }}</a>
+                    <span class="info color-hint">Created: {{ task.registered }}</span>
+                    <span class="info color-hint">Started: {{ task.start }}</span>
+                    <span class="info color-hint">Finished: {{ task.end }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
