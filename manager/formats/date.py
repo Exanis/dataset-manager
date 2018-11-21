@@ -3,7 +3,7 @@ def date_format(val):
 
 
 def datetime_format(val):
-    return val
+    return val.replace('T', ' ')
 
 
 def time_format(val):
