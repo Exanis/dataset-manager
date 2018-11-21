@@ -43,9 +43,20 @@ Dataset manager use [django-environ](https://github.com/joke2k/django-environ) t
 - PostgreSQL: ``postgres://``, ``pgsql://``, ``psql://`` or ``postgresql://``
 - SQLITE: ``sqlite://``
 
+## Password protection
+
+As I will repeat multiple times in this README, dataset manager is not meant to be publicly accessed. However, you may want to
+keep your instance up to avoid launching it on your local computer each time you need it. If you want to do so, you can enable a
+password protection (enforced by nginx) by simply setting the ``SERVER_PASSWORD`` environment variable. This variable must be set
+to a valid value as could go in a .htpasswd file (since it will basically go in a .htpasswd file), you may do something like:
+``-e 'SERVER_PASSWORD=admin:$apr1$2BuSs3Wf$.T9/4Vt1mCOVYE9BdPaBV.'`` (this will set username to admin and the password to admin).
+
+If you need to generate a new password, you can do so by running ``openssl passwd -apr1``.
+**Note**: Remember to escape (using ') the argument since the hashed password will include $ char that could be interpreted by your shell
+
 ## Other variables
 
-Dataset manager is **not** meant to be publicly accessible - there is no password protection on it, for once. To make it
+Dataset manager is **not** meant to be publicly accessible. To make it
 easier to use, some sensitive stuff (like secret key) are basically ignored. If for some reason you want to make it accessible,
 you should really change those settings. The good news is: there are env variable for that! Here is the list of possible variables:
 
@@ -53,6 +64,8 @@ you should really change those settings. The good news is: there are env variabl
 - ``SECRET_KEY``: Django's secret key. Default to ``change me``. There is basically nothing in the project that is signed so it is not that useful; however if you add it (like a password protection), **do not leave it to the default value**. [More about this topic](https://docs.djangoproject.com/en/dev/ref/settings/#secret-key)
 - ``ALLOWED_HOSTS``: List of host allowed to be used to access Dataset manager. It default to ``['*']`` (anything), but if you plan on exposing the tool you'd better change it. [More about this topic](https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts)
 - ``DATABASE_URL``: See previous section.
+- ``LANGUAGE_CODE``: See previous section.
+- ``SERVER_PASSWORD``: See previous section.
 
 ### Warning
 
@@ -61,7 +74,7 @@ by the code and that are basically never checked after being sent (like, "did th
 This is because it's meant to be used as a tool inside a team that is not likely to go out of it's way and live-edit the HTML to hack itself;
 this however is not true when you need to deal with unknown people.
 
-Amother potential security issue is that the application, as well as celery, are ran using the **root** user of your docker container.
+Another potential security issue is that the application, as well as celery, are ran using the **root** user of your docker container.
 This is done to avoid potential authorization problem with sqlite databases mounted as volumes, but it may lead to security breach (limited to your docker container, mind you, but still.)
 
 Short version? It's probably a bad idea to make this accessible for everybody. Keep it to your team.
