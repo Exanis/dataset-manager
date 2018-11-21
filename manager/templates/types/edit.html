@@ -134,9 +134,8 @@
                 {% endif %}
 
                 {% if type.data_type == 'person' %}
-                    A <span class="color-hint">Person</span> field will contain fake contact data for someone. The exact nature
-                    of the contact data depends on the number of values in the field: the first one will be a full name, then an
-                    email address, then a phone number, then a mail address, then if will loop.
+                    A <span class="color-hint">Person</span> field will contain fake contact data for someone. The data will be one
+                    (randomly choosen) of: Name, Email, Phone Number, Postal Address
                 {% endif %}
 
                 {% if type.data_type == 'datetime' %}
