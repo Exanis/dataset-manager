@@ -15,6 +15,6 @@ def api_export(data, export, collection, request):
     task = models.Task.objects.create(
         name='Export ' + collection.name + ' using ' + export.name
     )
-    tasks.api_export(task.uuid, export.method, export.url, params, data, headers)
+    tasks.api_export.delay(task.uuid, export.method, export.url, params, data, headers)
     messages.success(request, "Export started.")
     return redirect('display_collection', uuid=collection.uuid)
