@@ -3,7 +3,7 @@ FROM python:3.7.1
 RUN apt-get update
 RUN apt-get install -y nginx-light rabbitmq-server celeryd
 
-RUN mkdir /dataset-manager /dataset-manager-assets
+RUN mkdir -p /dataset-manager /dataset-manager-assets/static
 WORKDIR /dataset-manager
 
 COPY ./requirements.txt ./

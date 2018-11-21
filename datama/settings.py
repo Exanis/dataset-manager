@@ -64,4 +64,4 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'datama.wsgi.application'
 STATIC_URL = '/static/'
-STATIC_ROOT = '/dataset-manager-assets/'
+STATIC_ROOT = '/dataset-manager-assets/static/'
