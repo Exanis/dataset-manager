@@ -13,6 +13,12 @@ docker run --rm -v database:/db -e DATABASE_URL=sqlite:////db/db.sqlite3 -p 8000
 I create this tool mainly for my own usage to make some testing easier. While I'll gladly read any request or suggestion,
 I can offer no guarantee that it will fit to your needs at all. The easiest way to check is probably to try it...
 
+## Dataset localization
+
+Some data in your dataset may look better if they are localized. You can do that by settings the `LANGUAGE_CODE` environment variable
+to whatever you want: fr_FR, it_IT... The default value is en_US. This settings apply to:
+- Person field
+
 ## Database
 
 Dataset manager is designed to be launched as a docker container (but you can also launch it as a local server). While it

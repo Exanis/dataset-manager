@@ -6,7 +6,8 @@ ENV = Env(
     DEBUG=(bool, False),
     SECRET_KEY=(str, 'change me'),
     DATABASE_URL=(str, 'sqlite:////tmp/db.sqlite3'),
-    ALLOWED_HOSTS=(list, ['*'])
+    ALLOWED_HOSTS=(list, ['*']),
+    LANGUAGE_CODE=(str, 'en-us')
 )
 
 ENV.read_env()
@@ -18,6 +19,7 @@ ALLOWED_HOSTS = ENV('ALLOWED_HOSTS')
 DATABASES = {
     'default': ENV.db()
 }
+LANGUAGE_CODE = ENV('LANGUAGE_CODE')
 
 CELERY_APP = 'datama'
 CELERY_BROKER_URL = 'amqp://localhost'
