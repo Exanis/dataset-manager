@@ -3,9 +3,10 @@ from celery import shared_task
 from manager import models, validators, generators
 
 
-def generate(item, field, count):
+def generate(item, field, count, cnt=None):
     gen = getattr(generators, field.data_type.data_type + "_generator")
-    cnt = len(item.values_for(field))
+    if cnt is None:
+        cnt = len(item.values_for(field))
     for _ in range(count):
         value = gen(field.data_type, cnt)
         cnt += 1
@@ -120,7 +121,7 @@ def fix_collection(uuid, request):
                                 value=val
                             )
                     else:
-                        generate(item, field, count)
+                        generate(item, field, count, existing)
 
 
 @shared_task
