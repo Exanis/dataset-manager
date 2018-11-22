@@ -110,7 +110,7 @@ def clean_item(data_type, item):
         values = item.values_for(field)
         validator = getattr(validators, field.data_type.data_type + '_validator')
         for val in values:
-            if not validator(val.value):
+            if not validator(field.data_type, val.value):
                 val.delete()
         values = item.values_for(field)
         if len(values) > field.max_count:
