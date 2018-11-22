@@ -16,9 +16,9 @@ class Collection(models.Model):
         ordering = ['name']
 
 
-def _check_item_valid(t, item):
+def _check_item_valid(t, item, parent):
     for field in t.fields:
-        if not item.is_field_valid(field):
+        if not item.is_field_valid(field, parent):
             return False
     return True
 
@@ -34,7 +34,7 @@ class CollectionElement(models.Model):
 
     @property
     def is_valid(self):
-        return _check_item_valid(self.collection.type, self)
+        return _check_item_valid(self.collection.type, self, None)
 
     @property
     def values(self):
@@ -45,15 +45,16 @@ class CollectionElement(models.Model):
             self._values_for_cached[target_type] = self.values_list.filter(key=target_type)
         return self._values_for_cached[target_type]
 
-    def is_field_valid(self, field):
+    def is_field_valid(self, field, parent=None):
+        values = self.values_for(field).filter(parent=parent)
+        cnt = len(values)
+        if cnt < field.min_count or cnt > field.max_count:
+            return False
         if field.data_type.data_type == 'struct':
-            if not _check_item_valid(field.data_type, self):
-                return False
+            for val in values:
+                if not _check_item_valid(field.data_type, self, val):
+                    return False
         else:
-            values = self.values_for(field)
-            cnt = len(values)
-            if cnt < field.min_count or cnt > field.max_count:
-                return False
             validator = getattr(validators, field.data_type.data_type + '_validator')
             for val in values:
                 if not validator(val.value, field.data_type):
@@ -69,6 +70,7 @@ class CollectionElementValue(models.Model):
     element = models.ForeignKey(CollectionElement, related_name='values_list', on_delete=models.CASCADE)
     value = models.CharField(max_length=2048)
     key = models.ForeignKey('manager.DataTypeElement', on_delete=models.CASCADE)
+    parent = models.ForeignKey('manager.CollectionElementValue', null=True, default=None, on_delete=models.CASCADE)
     order = models.PositiveSmallIntegerField(default=0)
 
     class Meta():

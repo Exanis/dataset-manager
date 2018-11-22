@@ -72,25 +72,32 @@ def exports_param_del(request, uuid):
     return redirect('display_export', uuid=target.uuid)
 
 
-def _retrieve_object(t, obj, flatten, ignore_not_flat):
+def _retrieve_object(t, obj, flatten, ignore_not_flat, parent=None):
     result = {}
     for field in t.fields:
         if field.data_type.data_type == 'struct':
             if ignore_not_flat and not flatten:
                 continue
-            sub_object = _retrieve_object(field.data_type, obj, flatten, False)
-            if flatten:
-                result.update(sub_object)
-            else:
-                result[field.name] = sub_object
+            values = obj.values_for(field).filter(parent=parent)
+            struct_list = []
+            for val in values:
+                sub_object = _retrieve_object(field.data_type, obj, flatten, False, val)
+                if flatten:
+                    result.update(sub_object)
+                else:
+                    if field.max_count > 1:
+                        struct_list.append(sub_object)
+                    else:
+                        result[field.name] = sub_object
+            if field.max_count > 1:
+                result[field.name] = struct_list
         else:
             formatter = getattr(formats, field.data_type.data_type + '_format')
+            val = obj.values_for(field).filter(parent=parent)
             if field.max_count == 1:
-                val = obj.values_for(field)
                 if len(val) == 1:
                     result[field.name] = formatter(val[0].value)
             else:
-                val = obj.values_for(field)
                 result[field.name] = [formatter(v.value) for v in val]
     return result
 

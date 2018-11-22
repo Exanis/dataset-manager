@@ -93,10 +93,14 @@ def items_value_add(request, uuid):
         if len(timepart) == 5:
             timepart += ':00'
         val = datepart + timepart
+    parent_value = request.POST['parent'] if 'parent' in request.POST else None
+    if parent_value is not None:
+        parent_value = get_object_or_404(models.CollectionElementValue, uuid=parent_value)
     models.CollectionElementValue.objects.create(
         element=parent,
         key=data_type,
-        value=val
+        value=val,
+        parent=parent_value
     )
     return redirect('display_value', uuid=parent.uuid)
 
@@ -112,7 +116,11 @@ def items_value_del(request, uuid):
 def items_value_generate(request, item_uuid, field_uuid):
     item = get_object_or_404(models.CollectionElement, uuid=item_uuid)
     field = get_object_or_404(models.DataTypeElement, uuid=field_uuid)
-    tasks.generate(item, field, int(request.POST['count']))
+    if 'parent' in request.POST:
+        parent = get_object_or_404(models.CollectionElementValue, uuid=request.POST['parent'])
+    else:
+        parent = None
+    tasks.generate(item, field, int(request.POST['count']), parent)
     return redirect('display_value', uuid=item.uuid)
 
 

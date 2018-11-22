@@ -44,17 +44,17 @@
                         <span>View in list</span>
                         <input type="checkbox" name="recap" {% if element.recap %}checked{% endif %}/>
                     </label>
-                    <label class="selectable">
-                        <span>Minimum count</span>
-                        <input type="number" step="1" min="0" value="{{ element.min_count }}" name="min"
-                               autocomplete="off" required/>
-                    </label>
-                    <label class="selectable">
-                        <span>Maximum count</span>
-                        <input type="number" step="1" min="0" value="{{ element.max_count }}" name="max"
-                               autocomplete="off" required/>
-                    </label>
                 {% endif %}
+                <label class="selectable">
+                    <span>Minimum count</span>
+                    <input type="number" step="1" min="0" value="{{ element.min_count }}" name="min"
+                           autocomplete="off" required/>
+                </label>
+                <label class="selectable">
+                    <span>Maximum count</span>
+                    <input type="number" step="1" min="0" value="{{ element.max_count }}" name="max"
+                           autocomplete="off" required/>
+                </label>
                 <div class="submitWrapper">
                     <input type="submit" class="material-icons" value="check_circle"/>
                 </div>

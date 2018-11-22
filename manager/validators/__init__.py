@@ -7,3 +7,4 @@ from .options import options_validator
 from .uuid import uuid_validator
 from .person import person_validator
 from .date import date_validator, datetime_validator, time_validator
+from .struct import struct_validator
