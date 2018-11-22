@@ -1,3 +1,4 @@
+import requests
 from django.contrib import messages
 from django.shortcuts import redirect
 from manager import models, tasks
