@@ -12,9 +12,12 @@ def api_export(data, export, collection, request):
     }
     for header in export.params:
         headers[header.name] = header.value
-    task = models.Task.objects.create(
-        name='Export ' + collection.name + ' using ' + export.name
+    requests.request(
+        export.method,
+        export.url,
+        json=data,
+        headers=headers,
+        **params
     )
-    tasks.api_export.delay(task.uuid, export.method, export.url, params, data, headers)
-    messages.success(request, "Export started.")
+    messages.success(request, "Data exported.")
     return redirect('display_collection', uuid=collection.uuid)
